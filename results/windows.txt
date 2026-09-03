@@ -1,0 +1,56 @@
+=== platform: windows (windows-latest) ===
+rustc 1.98.0 (88d9e12ae 2026-08-18)
+
+=== test suite ===
+test srcpack::tests::packing_is_deterministic ... ok
+test srcpack::tests::skipped_directories_are_excluded ... ok
+test srcpack::tests::packs_a_tree_and_round_trips ... ok
+test srcpack::tests::the_unlocker_carries_no_secret ... ok
+test keystore::tests::a_key_can_be_obtained_and_is_stable ... FAILED
+test keystore::tests::derived_keys_are_separated_by_purpose ... ok
+
+failures:
+
+---- keystore::tests::a_key_can_be_obtained_and_is_stable stdout ----
+
+thread 'keystore::tests::a_key_can_be_obtained_and_is_stable' (7584) panicked at crates\nyedarch-buildtool\src\keystore.rs:313:9:
+assertion `left == right` failed: the master key must not change between calls
+  left: [126, 106, 80, 68, 220, 25, 195, 75, 46, 192, 109, 205, 58, 233, 168, 160, 161, 253, 253, 31, 253, 110, 60, 212, 20, 26, 41, 40, 249, 205, 52, 217]
+ right: [138, 96, 17, 127, 242, 180, 9, 117, 58, 185, 77, 39, 99, 42, 226, 2, 78, 29, 87, 191, 72, 140, 39, 217, 62, 98, 246, 149, 63, 32, 228, 88]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    keystore::tests::a_key_can_be_obtained_and_is_stable
+
+test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.17s
+
+[1m[91merror[0m: test failed, to rerun pass `-p nyedarch-buildtool --lib`
+exit=101
+
+=== end to end ===
+  -- CREATOR MODE (diagnostic only) --------------
+     signal crypto.machine_guid (Medium)
+   compression automatic (level 6) over 28 byte(s)
+seal_exit=0
+build_exit=0
+capsule_exit=0
+EXTRACTION=IDENTICAL
+Authorization failed.
+wrong_pass_exit=1
+LEAK=NO
+
+=== probes ===
+--- native location provider (must fail closed, never hang) ---
+  MACHINE                         LABELS
+  5740720f9f47390b    this one    this machine
+
+  Included machines: 1
+  Known labels: this machine
+location_probe_exit=0
+
+=== release and installer ===
+  NYEDArch Framework - build
+release_exit=0
+[1mNYEDArch - Not Your Everyday Archive[0m
+verify_exit=0
