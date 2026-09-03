@@ -5,25 +5,25 @@ rustc 1.98.0 (88d9e12ae 2026-08-18)
 
 ---- keystore::tests::a_key_can_be_obtained_and_is_stable stdout ----
 
-thread 'keystore::tests::a_key_can_be_obtained_and_is_stable' (2784) panicked at crates\nyedarch-buildtool\src\keystore.rs:336:9:
+thread 'keystore::tests::a_key_can_be_obtained_and_is_stable' (7540) panicked at crates\nyedarch-buildtool\src\keystore.rs:359:9:
 assertion `left == right` failed: the master key must not change between calls
-  left: [206, 42, 157, 208, 20, 143, 170, 123, 137, 49, 124, 198, 200, 83, 22, 241, 105, 130, 194, 170, 171, 189, 219, 68, 132, 245, 16, 247, 147, 110, 223, 3]
- right: [236, 38, 209, 67, 144, 119, 59, 75, 5, 188, 64, 197, 31, 43, 154, 178, 141, 220, 154, 191, 170, 201, 246, 88, 100, 144, 4, 171, 132, 93, 208, 44]
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  left: [172, 218, 2, 117, 216, 250, 53, 136, 70, 179, 67, 59, 25, 50, 14, 104, 7, 234, 214, 143, 223, 0, 14, 62, 164, 137, 25, 40, 141, 122, 210, 245]
+ right: [174, 86, 26, 215, 195, 104, 168, 40, 232, 4, 2, 3, 123, 168, 76, 53, 151, 103, 118, 116, 223, 85, 19, 184, 133, 16, 190, 11, 136, 119, 179, 88]
 
----- keystore::tests::a_third_call_still_returns_the_same_key stdout ----
+---- keystore::tests::derived_keys_are_separated_by_purpose stdout ----
 
-thread 'keystore::tests::a_third_call_still_returns_the_same_key' (8252) panicked at crates\nyedarch-buildtool\src\keystore.rs:347:9:
+thread 'keystore::tests::derived_keys_are_separated_by_purpose' (3352) panicked at crates\nyedarch-buildtool\src\keystore.rs:380:9:
 assertion `left == right` failed
-  left: [108, 151, 78, 104, 75, 212, 215, 29, 149, 251, 71, 88, 104, 188, 102, 11, 143, 240, 166, 71, 58, 68, 150, 35, 161, 88, 247, 142, 123, 229, 232, 108]
- right: [236, 38, 209, 67, 144, 119, 59, 75, 5, 188, 64, 197, 31, 43, 154, 178, 141, 220, 154, 191, 170, 201, 246, 88, 100, 144, 4, 171, 132, 93, 208, 44]
+  left: [8, 5, 28, 156, 156, 212, 12, 67, 17, 6, 184, 117, 97, 6, 231, 205, 95, 119, 190, 17, 26, 205, 84, 250, 59, 111, 167, 70, 104, 122, 144, 128]
+ right: [223, 141, 167, 118, 129, 199, 187, 193, 114, 239, 209, 126, 197, 156, 145, 124, 142, 89, 204, 102, 157, 12, 74, 23, 107, 225, 254, 179, 188, 100, 14, 84]
 
 
 failures:
     keystore::tests::a_key_can_be_obtained_and_is_stable
-    keystore::tests::a_third_call_still_returns_the_same_key
+    keystore::tests::concurrent_initialisation_converges
+    keystore::tests::derived_keys_are_separated_by_purpose
 
-test result: FAILED. 23 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.63s
+test result: FAILED. 23 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.12s
 
 [1m[91merror[0m: test failed, to rerun pass `-p nyedarch-buildtool --lib`
 exit=101
