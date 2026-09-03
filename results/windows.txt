@@ -2,28 +2,28 @@
 rustc 1.98.0 (88d9e12ae 2026-08-18)
 
 === test suite ===
-test srcpack::tests::packing_is_deterministic ... ok
-test srcpack::tests::skipped_directories_are_excluded ... ok
-test srcpack::tests::packs_a_tree_and_round_trips ... ok
-test srcpack::tests::the_unlocker_carries_no_secret ... ok
-test keystore::tests::a_key_can_be_obtained_and_is_stable ... FAILED
-test keystore::tests::derived_keys_are_separated_by_purpose ... ok
-
-failures:
 
 ---- keystore::tests::a_key_can_be_obtained_and_is_stable stdout ----
 
-thread 'keystore::tests::a_key_can_be_obtained_and_is_stable' (7584) panicked at crates\nyedarch-buildtool\src\keystore.rs:313:9:
+thread 'keystore::tests::a_key_can_be_obtained_and_is_stable' (2784) panicked at crates\nyedarch-buildtool\src\keystore.rs:336:9:
 assertion `left == right` failed: the master key must not change between calls
-  left: [126, 106, 80, 68, 220, 25, 195, 75, 46, 192, 109, 205, 58, 233, 168, 160, 161, 253, 253, 31, 253, 110, 60, 212, 20, 26, 41, 40, 249, 205, 52, 217]
- right: [138, 96, 17, 127, 242, 180, 9, 117, 58, 185, 77, 39, 99, 42, 226, 2, 78, 29, 87, 191, 72, 140, 39, 217, 62, 98, 246, 149, 63, 32, 228, 88]
+  left: [206, 42, 157, 208, 20, 143, 170, 123, 137, 49, 124, 198, 200, 83, 22, 241, 105, 130, 194, 170, 171, 189, 219, 68, 132, 245, 16, 247, 147, 110, 223, 3]
+ right: [236, 38, 209, 67, 144, 119, 59, 75, 5, 188, 64, 197, 31, 43, 154, 178, 141, 220, 154, 191, 170, 201, 246, 88, 100, 144, 4, 171, 132, 93, 208, 44]
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- keystore::tests::a_third_call_still_returns_the_same_key stdout ----
+
+thread 'keystore::tests::a_third_call_still_returns_the_same_key' (8252) panicked at crates\nyedarch-buildtool\src\keystore.rs:347:9:
+assertion `left == right` failed
+  left: [108, 151, 78, 104, 75, 212, 215, 29, 149, 251, 71, 88, 104, 188, 102, 11, 143, 240, 166, 71, 58, 68, 150, 35, 161, 88, 247, 142, 123, 229, 232, 108]
+ right: [236, 38, 209, 67, 144, 119, 59, 75, 5, 188, 64, 197, 31, 43, 154, 178, 141, 220, 154, 191, 170, 201, 246, 88, 100, 144, 4, 171, 132, 93, 208, 44]
 
 
 failures:
     keystore::tests::a_key_can_be_obtained_and_is_stable
+    keystore::tests::a_third_call_still_returns_the_same_key
 
-test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.17s
+test result: FAILED. 23 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.63s
 
 [1m[91merror[0m: test failed, to rerun pass `-p nyedarch-buildtool --lib`
 exit=101
@@ -49,8 +49,15 @@ LEAK=NO
   Known labels: this machine
 location_probe_exit=0
 
+=== key stability ===
+--- three separate invocations must agree on the key ---
+[buildtool] record is MAC-authenticated; editing it invalidates it.
+[buildtool] record is MAC-authenticated; editing it invalidates it.
+[buildtool] record is MAC-authenticated; editing it invalidates it.
+--- a record from run 1 must verify in run 3 ---
+
+[nyedarch] trusted 5740720f9f47390b labels=["probe"]
+keystore_exit=0
+
 === release and installer ===
-  NYEDArch Framework - build
-release_exit=0
-[1mNYEDArch - Not Your Everyday Archive[0m
-verify_exit=0
+D:\a\nyedarch-platform-tests\nyedarch-platform-tests\ws>release_exit=0
