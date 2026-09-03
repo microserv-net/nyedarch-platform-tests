@@ -1,0 +1,11 @@
+=== linux (ubuntu-latest) ===
+--- TPM device nodes ---
+ls: cannot access '/dev/tpm*': No such file or directory
+--- sysfs ---
+cat: /sys/class/tpm/tpm0/tpm_version_major: No such file or directory
+--- tpm2-tools present? ---
+--- can we talk to it? ---
+/home/runner/work/_temp/e14cd673-e7ac-411d-ae6c-1687de4eddcb.sh: line 12: tpm2_getcap: command not found
+--- readable by this user? ---
+uid=1001(runner) gid=1001(runner) groups=1001(runner),4(adm),100(users),118(docker),999(systemd-journal)
+stat: cannot statx '/dev/tpmrm0': No such file or directory
