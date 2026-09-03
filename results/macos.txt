@@ -2,28 +2,28 @@
 rustc 1.98.0 (88d9e12ae 2026-08-18)
 
 === test suite ===
-
 ---- keystore::tests::a_third_call_still_returns_the_same_key stdout ----
 
-thread 'keystore::tests::a_third_call_still_returns_the_same_key' (15659) panicked at crates/nyedarch-buildtool/src/keystore.rs:347:9:
+thread 'keystore::tests::a_third_call_still_returns_the_same_key' (13042) panicked at crates/nyedarch-buildtool/src/keystore.rs:370:9:
 assertion `left == right` failed
-  left: [90, 177, 11, 208, 209, 213, 253, 14, 94, 231, 139, 42, 244, 37, 184, 148, 254, 31, 3, 254, 53, 79, 86, 81, 219, 108, 215, 136, 163, 215, 118, 181]
- right: [187, 184, 221, 118, 246, 27, 113, 148, 121, 35, 156, 194, 238, 128, 213, 148, 157, 151, 214, 39, 124, 14, 180, 126, 167, 202, 9, 191, 192, 241, 180, 85]
+  left: [27, 220, 167, 122, 9, 165, 96, 193, 58, 82, 37, 87, 95, 235, 125, 160, 11, 123, 197, 4, 131, 245, 207, 62, 222, 121, 236, 34, 122, 221, 216, 186]
+ right: [200, 144, 145, 23, 32, 51, 140, 228, 220, 136, 155, 160, 104, 117, 233, 205, 196, 245, 224, 4, 217, 55, 14, 13, 241, 74, 249, 166, 29, 183, 164, 19]
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
----- keystore::tests::derived_keys_are_separated_by_purpose stdout ----
+---- keystore::tests::a_key_can_be_obtained_and_is_stable stdout ----
 
-thread 'keystore::tests::derived_keys_are_separated_by_purpose' (15660) panicked at crates/nyedarch-buildtool/src/keystore.rs:357:9:
-assertion `left == right` failed
-  left: [236, 230, 34, 30, 155, 26, 191, 224, 49, 164, 82, 180, 188, 4, 230, 212, 85, 130, 102, 67, 49, 15, 119, 227, 230, 197, 87, 112, 221, 104, 132, 204]
- right: [43, 158, 208, 172, 172, 42, 213, 238, 43, 120, 120, 15, 100, 108, 39, 101, 246, 117, 185, 223, 90, 139, 18, 40, 174, 118, 138, 209, 15, 83, 222, 56]
+thread 'keystore::tests::a_key_can_be_obtained_and_is_stable' (13041) panicked at crates/nyedarch-buildtool/src/keystore.rs:359:9:
+assertion `left == right` failed: the master key must not change between calls
+  left: [27, 220, 167, 122, 9, 165, 96, 193, 58, 82, 37, 87, 95, 235, 125, 160, 11, 123, 197, 4, 131, 245, 207, 62, 222, 121, 236, 34, 122, 221, 216, 186]
+ right: [200, 144, 145, 23, 32, 51, 140, 228, 220, 136, 155, 160, 104, 117, 233, 205, 196, 245, 224, 4, 217, 55, 14, 13, 241, 74, 249, 166, 29, 183, 164, 19]
 
 
 failures:
+    keystore::tests::a_key_can_be_obtained_and_is_stable
     keystore::tests::a_third_call_still_returns_the_same_key
-    keystore::tests::derived_keys_are_separated_by_purpose
+    keystore::tests::concurrent_initialisation_converges
 
-test result: FAILED. 25 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+test result: FAILED. 25 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
 
 [1m[91merror[0m: test failed, to rerun pass `-p nyedarch-buildtool --lib`
 exit=101
@@ -67,6 +67,7 @@ keystore_exit=0
 /Users/runner/Applications/NYEDArch.app/Contents/MacOS
 /Users/runner/Applications/NYEDArch.app/Contents/MacOS/install
 /Users/runner/Applications/NYEDArch.app/Contents/MacOS/nyedarch
+/Users/runner/Applications/NYEDArch.app/Contents/installed-files.txt
 /Users/runner/Applications/NYEDArch.app/Contents/Resources
 /Users/runner/Applications/NYEDArch.app/Contents/Resources/START_HERE.md
 /Users/runner/Applications/NYEDArch.app/Contents/Resources/runtime-src
@@ -77,7 +78,6 @@ keystore_exit=0
 /Users/runner/Applications/NYEDArch.app/Contents/Resources/SHA256SUMS
 /Users/runner/Applications/NYEDArch.app/Contents/Info.plist
 /Users/runner/Applications/NYEDArch.app/Contents/PkgInfo
-/Users/runner/Applications/NYEDArch.app/installed-files.txt
 install_exit=0
 bundle_exists=yes
 plist_exists=yes
