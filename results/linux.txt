@@ -1,0 +1,56 @@
+=== platform: linux (ubuntu-latest) ===
+rustc 1.98.0 (88d9e12ae 2026-08-18)
+
+=== test suite ===
+[1m[92m   Doc-tests[0m nyedarch_github
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m   Doc-tests[0m nyedarch_package
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m   Doc-tests[0m nyedarch_platform
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m   Doc-tests[0m nyedarch_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit=0
+
+=== end to end ===
+  -- CREATOR MODE (diagnostic only) --------------
+     signal cpu.model (Weak)
+     signal dmi.product_uuid (Strong)
+     signal hostname (Weak)
+     signal machine-id (Medium)
+   compression automatic (level 6) over 28 byte(s)
+seal_exit=0
+build_exit=0
+capsule_exit=0
+EXTRACTION=IDENTICAL
+Authorization failed.
+wrong_pass_exit=1
+LEAK=NO
+
+=== probes ===
+--- native location provider (must fail closed, never hang) ---
+  MACHINE                         LABELS
+  b19dad2055b4699d    this one    this machine
+
+  Included machines: 1
+  Known labels: this machine
+location_probe_exit=0
+
+=== release and installer ===
+release_exit=127
