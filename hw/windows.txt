@@ -1,0 +1,20 @@
+=== windows (windows-latest) ===
+--- Get-Tpm ---
+
+
+TpmPresent          : False
+TpmReady            : False
+TpmEnabled          : False
+ManufacturerIdTxt   : 
+ManufacturerVersion : 
+
+
+
+--- Platform Crypto Provider available? ---
+
+> Provider Name: Microsoft Platform Crypto Provider
+> Microsoft Platform Crypto Provider: The device that is required by this cryptographic provider is not ready for use.
+  
+  Provider Name: Microsoft Smart Card Key Storage Provider
+
+
