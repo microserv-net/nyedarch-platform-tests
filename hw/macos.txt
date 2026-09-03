@@ -1,0 +1,14 @@
+=== macos (macos-14) ===
+--- Secure Enclave / T2 / Apple Silicon ---
+Apple M1 (Virtual)
+Controller:
+
+      Model Identifier: VirtualMac2,1
+      Firmware Version: iBoot-10151.140.19.701.1
+      Boot UUID: C3995D32-1857-44B0-B78B-75B9616E91F3
+      Boot Policy:  
+        Secure Boot: Permissive Security
+        System Integrity Protection: Disabled
+--- keychain access control (SE-backed key support) ---
+    "/Users/runner/Library/Keychains/login.keychain-db"
+    "/Library/Keychains/System.keychain"
