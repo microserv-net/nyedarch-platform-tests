@@ -1,0 +1,136 @@
+name: nyedarch-platform-verification
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, name: linux }
+          - { os: macos-14,      name: macos }
+          - { os: windows-latest, name: windows }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      # The workspace is stored encrypted, so nothing proprietary is published
+      # even though this repository is public. The key is a repository secret.
+      - name: Build the unlocker
+        working-directory: unlock
+        run: cargo build --release
+
+      - name: Decrypt the workspace
+        shell: bash
+        env:
+          NYEDARCH_SOURCE_KEY: ${{ secrets.NYEDARCH_SOURCE_KEY }}
+        run: |
+          if [ -z "$NYEDARCH_SOURCE_KEY" ]; then echo "missing key" >&2; exit 1; fi
+          mkdir -p ws
+          ./unlock/target/release/nyedarch-unlock workspace.sealed ws
+
+      - name: Run the test suite on this platform
+        shell: bash
+        working-directory: ws
+        run: |
+          set +e
+          cargo test --workspace > /tmp/tests.txt 2>&1
+          echo "exit=$?" >> /tmp/tests.txt
+          tail -40 /tmp/tests.txt
+
+      # The real question: does a capsule built on this platform actually run
+      # here? This has never been exercised outside Linux.
+      - name: End-to-end capsule test
+        shell: bash
+        working-directory: ws
+        run: |
+          set +e
+          mkdir -p /tmp/src && echo "platform end-to-end payload" > /tmp/src/secret.txt
+          echo "accept" | cargo run --release -p nyedarch-buildtool -- \
+            seal /tmp/src /tmp/proj "platform-test-pass" --creator > /tmp/seal.txt 2>&1
+          echo "seal_exit=$?" >> /tmp/seal.txt
+          cd /tmp/proj || exit 0
+          cargo build --release >> /tmp/seal.txt 2>&1
+          echo "build_exit=$?" >> /tmp/seal.txt
+          bin="target/release/nyedarch-capsule"
+          [ -f "$bin.exe" ] && bin="$bin.exe"
+          cp "$bin" "/tmp/capsule.nyarch"
+          chmod +x /tmp/capsule.nyarch 2>/dev/null || true
+          NYEDARCH_PASSPHRASE="platform-test-pass" /tmp/capsule.nyarch /tmp/out >> /tmp/seal.txt 2>&1
+          echo "capsule_exit=$?" >> /tmp/seal.txt
+          if diff -r /tmp/src /tmp/out/src > /dev/null 2>&1; then
+            echo "EXTRACTION=IDENTICAL" >> /tmp/seal.txt
+          else
+            echo "EXTRACTION=MISMATCH" >> /tmp/seal.txt
+            ls -R /tmp/out >> /tmp/seal.txt 2>&1
+          fi
+          # A wrong passphrase must be refused.
+          NYEDARCH_PASSPHRASE="wrong" /tmp/capsule.nyarch /tmp/bad >> /tmp/seal.txt 2>&1
+          echo "wrong_pass_exit=$?" >> /tmp/seal.txt
+          [ -d /tmp/bad ] && echo "LEAK=YES" >> /tmp/seal.txt || echo "LEAK=NO" >> /tmp/seal.txt
+
+      - name: Platform probes
+        shell: bash
+        working-directory: ws
+        run: |
+          set +e
+          {
+            echo "--- native location provider (must fail closed, never hang) ---"
+            timeout 60 cargo run --release -q -p nyedarch-buildtool -- machines list 2>&1 | tail -5
+            echo "location_probe_exit=$?"
+          } > /tmp/probe.txt 2>&1
+          tail -20 /tmp/probe.txt
+
+      - name: Installer on this platform
+        shell: bash
+        working-directory: ws
+        run: |
+          set +e
+          ./build.sh --skip-gui --skip-tests --skip-bench > /tmp/rel.txt 2>&1 || \
+            cmd.exe /c build.bat --skip-gui --skip-tests --skip-bench > /tmp/rel.txt 2>&1
+          echo "release_exit=$?" >> /tmp/rel.txt
+          if [ -d release ]; then
+            ( cd release && ./install --verify >> /tmp/rel.txt 2>&1 || ./install.exe --verify >> /tmp/rel.txt 2>&1 )
+            echo "verify_exit=$?" >> /tmp/rel.txt
+            # macOS: does install actually produce a valid .app bundle?
+            if [ "${{ matrix.name }}" = "macos" ]; then
+              ( cd release && ./install --yes >> /tmp/rel.txt 2>&1 )
+              echo "install_exit=$?" >> /tmp/rel.txt
+              APP="$HOME/Applications/NYEDArch.app"
+              echo "bundle_exists=$([ -d "$APP" ] && echo yes || echo no)" >> /tmp/rel.txt
+              echo "plist_exists=$([ -f "$APP/Contents/Info.plist" ] && echo yes || echo no)" >> /tmp/rel.txt
+              echo "executable=$([ -x "$APP/Contents/MacOS/NYEDArch" ] && echo yes || echo no)" >> /tmp/rel.txt
+              /usr/libexec/PlistBuddy -c "Print :NSLocationWhenInUseUsageDescription" "$APP/Contents/Info.plist" >> /tmp/rel.txt 2>&1
+              echo "plist_readable_by_macos=$?" >> /tmp/rel.txt
+              codesign -dv "$APP" >> /tmp/rel.txt 2>&1
+              echo "codesign_exit=$?" >> /tmp/rel.txt
+            fi
+          fi
+          tail -30 /tmp/rel.txt
+
+      - name: Publish results
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p results
+          F="results/${{ matrix.name }}.txt"
+          {
+            echo "=== platform: ${{ matrix.name }} (${{ matrix.os }}) ==="
+            rustc --version
+            echo
+            echo "=== test suite ==="; tail -25 /tmp/tests.txt 2>/dev/null
+            echo; echo "=== end to end ==="; grep -E "exit=|EXTRACTION=|LEAK=|CREATOR|signal |compression |Authorization" /tmp/seal.txt 2>/dev/null | tail -30
+            echo; echo "=== probes ==="; tail -12 /tmp/probe.txt 2>/dev/null
+            echo; echo "=== release and installer ==="; grep -E "exit=|bundle_|plist_|executable=|NYEDArch|Authority" /tmp/rel.txt 2>/dev/null | tail -25
+          } > "$F" 2>&1
+          git config user.name  "nyedarch-ci"
+          git config user.email "ci@nyedarch.invalid"
+          git add "$F"
+          git commit -m "results: ${{ matrix.name }}" || echo "nothing to commit"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && break
+            sleep $((RANDOM % 10 + 3))
+          done
