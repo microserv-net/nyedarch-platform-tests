@@ -1,0 +1,52 @@
+name: nyedarch-hardware-probe
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, name: linux }
+          - { os: macos-14, name: macos }
+          - { os: windows-latest, name: windows }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe hardware security capability
+        shell: bash
+        run: |
+          set +e
+          F=hw/${{ matrix.name }}.txt
+          mkdir -p hw
+          {
+            echo "=== ${{ matrix.name }} (${{ matrix.os }}) ==="
+            if [ "${{ matrix.name }}" = "linux" ]; then
+              echo "--- TPM device nodes ---"; ls -l /dev/tpm* 2>&1 | head
+              echo "--- sysfs ---"; ls /sys/class/tpm/ 2>&1 | head
+              cat /sys/class/tpm/tpm0/tpm_version_major 2>&1 | head -1
+              echo "--- tpm2-tools present? ---"; which tpm2_getcap tpm2_createprimary 2>&1 | head
+              echo "--- can we talk to it? ---"
+              tpm2_getcap properties-fixed 2>&1 | head -5
+              echo "--- readable by this user? ---"; id; stat -c '%A %U:%G' /dev/tpmrm0 2>&1
+            fi
+            if [ "${{ matrix.name }}" = "windows" ]; then
+              echo "--- Get-Tpm ---"
+              powershell -NoProfile -Command "try { Get-Tpm | Format-List TpmPresent,TpmReady,TpmEnabled,ManufacturerIdTxt,ManufacturerVersion } catch { \$_.Exception.Message }" 2>&1 | head -20
+              echo "--- Platform Crypto Provider available? ---"
+              powershell -NoProfile -Command "certutil -csplist | Select-String -Pattern 'Platform Crypto' -Context 0,2" 2>&1 | head -10
+            fi
+            if [ "${{ matrix.name }}" = "macos" ]; then
+              echo "--- Secure Enclave / T2 / Apple Silicon ---"
+              sysctl -n machdep.cpu.brand_string 2>&1
+              system_profiler SPiBridgeDataType 2>&1 | head -8
+              echo "--- keychain access control (SE-backed key support) ---"
+              security list-keychains 2>&1 | head -5
+            fi
+          } > "$F" 2>&1
+          cat "$F"
+          git config user.name nyedarch-ci; git config user.email ci@nyedarch.invalid
+          git add "$F"; git commit -m "hw probe ${{ matrix.name }}" || true
+          for i in 1 2 3 4 5; do git pull --rebase --autostash && git push && break; sleep $((RANDOM%8+3)); done
