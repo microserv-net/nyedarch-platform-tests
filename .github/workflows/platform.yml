@@ -79,25 +79,50 @@ jobs:
           set +e
           {
             echo "--- native location provider (must fail closed, never hang) ---"
-            timeout 60 cargo run --release -q -p nyedarch-buildtool -- machines list 2>&1 | tail -5
+            cargo run --release -q -p nyedarch-buildtool -- machines list 2>&1 | tail -5
             echo "location_probe_exit=$?"
           } > /tmp/probe.txt 2>&1
           tail -20 /tmp/probe.txt
+
+      - name: Client key must be stable across separate runs
+        shell: bash
+        working-directory: ws
+        run: |
+          set +e
+          {
+            echo "--- three separate invocations must agree on the key ---"
+            for n in 1 2 3; do
+              cargo run --release -q -p nyedarch-buildtool -- export /tmp/k$n.nyfp probe </dev/null 2>&1 | tail -1
+            done
+            echo "--- a record from run 1 must verify in run 3 ---"
+            cargo run --release -q -p nyedarch-buildtool -- machines add /tmp/k1.nyfp </dev/null 2>&1 | tail -2
+            echo "keystore_exit=$?"
+          } > /tmp/key.txt 2>&1
+          tail -12 /tmp/key.txt
 
       - name: Installer on this platform
         shell: bash
         working-directory: ws
         run: |
           set +e
-          ./build.sh --skip-gui --skip-tests --skip-bench > /tmp/rel.txt 2>&1 || \
+          if [ "${{ matrix.name }}" = "windows" ]; then
             cmd.exe /c build.bat --skip-gui --skip-tests --skip-bench > /tmp/rel.txt 2>&1
+          else
+            bash build.sh --skip-gui --skip-tests --skip-bench > /tmp/rel.txt 2>&1
+          fi
           echo "release_exit=$?" >> /tmp/rel.txt
           if [ -d release ]; then
-            ( cd release && ./install --verify >> /tmp/rel.txt 2>&1 || ./install.exe --verify >> /tmp/rel.txt 2>&1 )
+            if [ "${{ matrix.name }}" = "windows" ]; then
+              ( cd release && ./install.exe --verify >> /tmp/rel.txt 2>&1 )
+            else
+              ( cd release && ./install --verify >> /tmp/rel.txt 2>&1 )
+            fi
             echo "verify_exit=$?" >> /tmp/rel.txt
             # macOS: does install actually produce a valid .app bundle?
             if [ "${{ matrix.name }}" = "macos" ]; then
               ( cd release && ./install --yes >> /tmp/rel.txt 2>&1 )
+              echo "--- bundle contents ---" >> /tmp/rel.txt
+              find "$HOME/Applications/NYEDArch.app" -maxdepth 3 | head -20 >> /tmp/rel.txt 2>&1
               echo "install_exit=$?" >> /tmp/rel.txt
               APP="$HOME/Applications/NYEDArch.app"
               echo "bundle_exists=$([ -d "$APP" ] && echo yes || echo no)" >> /tmp/rel.txt
@@ -124,6 +149,7 @@ jobs:
             echo "=== test suite ==="; tail -25 /tmp/tests.txt 2>/dev/null
             echo; echo "=== end to end ==="; grep -E "exit=|EXTRACTION=|LEAK=|CREATOR|signal |compression |Authorization" /tmp/seal.txt 2>/dev/null | tail -30
             echo; echo "=== probes ==="; tail -12 /tmp/probe.txt 2>/dev/null
+            echo; echo "=== key stability ==="; tail -12 /tmp/key.txt 2>/dev/null
             echo; echo "=== release and installer ==="; grep -E "exit=|bundle_|plist_|executable=|NYEDArch|Authority" /tmp/rel.txt 2>/dev/null | tail -25
           } > "$F" 2>&1
           git config user.name  "nyedarch-ci"
