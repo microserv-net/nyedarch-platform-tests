@@ -84,6 +84,40 @@ jobs:
           } > /tmp/probe.txt 2>&1
           tail -20 /tmp/probe.txt
 
+      # The claim under test: destruction completes even when the detached
+      # child is killed, because the OS scheduler also holds the job.
+      - name: Destruction must survive the helper being killed
+        shell: bash
+        working-directory: ws
+        run: |
+          set +e
+          {
+            echo "--- available one-shot schedulers ---"
+            command -v systemd-run && systemd-run --user --quiet --collect --on-active=1 /bin/true && echo "systemd-run: usable" || echo "systemd-run: unusable"
+            command -v at >/dev/null && echo "at: present" || echo "at: absent"
+            command -v launchctl >/dev/null && echo "launchctl: present" || echo "launchctl: absent"
+            command -v schtasks >/dev/null && echo "schtasks: present" || echo "schtasks: absent"
+
+            echo "--- build a one-shot capsule ---"
+            mkdir -p /tmp/dsrc && echo "destruction payload" > /tmp/dsrc/f.txt
+            echo "accept" | cargo run --release -q -p nyedarch-buildtool -- \
+              seal /tmp/dsrc /tmp/dproj "destroy-me" --one-shot 2>&1 | tail -2
+            cd /tmp/dproj && cargo build --release >/dev/null 2>&1
+            bin="target/release/nyedarch-capsule"; [ -f "$bin.exe" ] && bin="$bin.exe"
+            cp "$bin" /tmp/oneshot.nyarch; chmod +x /tmp/oneshot.nyarch 2>/dev/null
+
+            echo "--- run it, then immediately kill any detached helper ---"
+            NYEDARCH_PASSPHRASE="destroy-me" /tmp/oneshot.nyarch /tmp/dout 2>&1 | tail -1
+            pkill -f "shred -u" 2>/dev/null; pkill -9 -f "oneshot.nyarch" 2>/dev/null
+            taskkill /F /IM powershell.exe 2>/dev/null | head -1
+
+            echo "immediately: $([ -f /tmp/oneshot.nyarch ] && echo present || echo gone)"
+            sleep 10
+            echo "after 10s:   $([ -f /tmp/oneshot.nyarch ] && echo STILL_PRESENT || echo GONE)"
+            echo "extraction:  $([ -f /tmp/dout/dsrc/f.txt ] && echo ok || echo missing)"
+          } > /tmp/destroy.txt 2>&1
+          tail -25 /tmp/destroy.txt
+
       - name: Client key must be stable across separate runs
         shell: bash
         working-directory: ws
@@ -150,6 +184,7 @@ jobs:
             echo; echo "=== end to end ==="; grep -E "exit=|EXTRACTION=|LEAK=|CREATOR|signal |compression |Authorization" /tmp/seal.txt 2>/dev/null | tail -30
             echo; echo "=== probes ==="; tail -12 /tmp/probe.txt 2>/dev/null
             echo; echo "=== key stability ==="; tail -12 /tmp/key.txt 2>/dev/null
+            echo; echo "=== destruction under helper kill ==="; tail -20 /tmp/destroy.txt 2>/dev/null
             echo; echo "=== release and installer ==="; grep -E "exit=|bundle_|plist_|executable=|NYEDArch|Authority" /tmp/rel.txt 2>/dev/null | tail -25
           } > "$F" 2>&1
           git config user.name  "nyedarch-ci"
