@@ -65,6 +65,10 @@ systemd-run: unusable
 at: present
 launchctl: absent
 schtasks: present
+--- can schtasks create a task at all? ---
+ERROR: Invalid argument/option - 'C:/Program Files/Git/create'.
+Type "SCHTASKS /QUERY /?" for usage.
+schtasks_create_exit=1
 --- build a one-shot capsule ---
    EXECUTION               one-shot
   ------------------------------------------------
