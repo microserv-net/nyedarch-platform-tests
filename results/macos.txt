@@ -1,32 +1,32 @@
 === platform: macos (macos-14) ===
-rustc 1.98.0 (88d9e12ae 2026-08-18)
+rustc 1.98.1 (48a229cea 2026-09-01)
 
 === test suite ===
-[1m[92m   Doc-tests[0m nyedarch_github
+test harden::hooking_tests::injection_probes_are_total ... ok
+test harden::hooking_tests::injection_probes_reach_the_accumulator ... ok
+test harden::tests::accumulator_is_deterministic_per_build_in_a_stable_environment ... ok
+test harden::tests::different_builds_diverge ... ok
+test harden::tests::ordering_matters ... ok
+test harden::tests::package_commitment_detects_modification ... ok
+test destruction::tests::normal_deletion_removes_and_reports_it ... ok
+test destruction::tests::a_working_tree_is_destroyed_and_every_file_reported ... ok
 
-running 0 tests
+failures:
 
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+---- destruction::delegation_evidence::the_helper_scrubs_the_inode_not_just_the_name stdout ----
 
-[1m[92m   Doc-tests[0m nyedarch_package
+thread 'destruction::delegation_evidence::the_helper_scrubs_the_inode_not_just_the_name' (13492) panicked at crates/nyedarch-runtime/src/destruction.rs:858:9:
+the inode still holds the original bytes: the helper unlinked without scrubbing
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
-running 0 tests
 
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+failures:
+    destruction::delegation_evidence::the_helper_scrubs_the_inode_not_just_the_name
 
-[1m[92m   Doc-tests[0m nyedarch_platform
+test result: FAILED. 24 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
 
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-[1m[92m   Doc-tests[0m nyedarch_runtime
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-exit=0
+[1m[91merror[0m: test failed, to rerun pass `-p nyedarch-runtime --lib`
+exit=101
 
 === end to end ===
   -- CREATOR MODE (diagnostic only) --------------
@@ -59,6 +59,21 @@ location_probe_exit=0
 
 [nyedarch] trusted 1157402222683747 labels=["probe"]
 keystore_exit=0
+
+=== destruction under helper kill ===
+--- available one-shot schedulers ---
+systemd-run: unusable
+at: present
+launchctl: present
+schtasks: absent
+--- build a one-shot capsule ---
+   EXECUTION               one-shot
+  ------------------------------------------------
+--- run it, then immediately kill any detached helper ---
+NYEDArch: capsule destroyed (overwritten and removed (best effort; physical erasure is not guaranteed))
+immediately: gone
+after 10s:   GONE
+extraction:  ok
 
 === release and installer ===
 /Users/runner/Applications/NYEDArch.app/Contents
