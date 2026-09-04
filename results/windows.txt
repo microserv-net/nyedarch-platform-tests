@@ -1,5 +1,5 @@
 === platform: windows (windows-latest) ===
-rustc 1.98.0 (88d9e12ae 2026-08-18)
+rustc 1.98.1 (48a229cea 2026-09-01)
 
 === test suite ===
 [1m[92m   Doc-tests[0m nyedarch_github
@@ -58,6 +58,21 @@ location_probe_exit=0
 
 [nyedarch] trusted 5740720f9f47390b labels=["probe"]
 keystore_exit=0
+
+=== destruction under helper kill ===
+--- available one-shot schedulers ---
+systemd-run: unusable
+at: present
+launchctl: absent
+schtasks: present
+--- build a one-shot capsule ---
+   EXECUTION               one-shot
+  ------------------------------------------------
+--- run it, then immediately kill any detached helper ---
+NYEDArch: capsule scheduled for destruction (overwrite and removal handed to a detached PowerShell, running after this process exits (requested, not confirmed))
+immediately: gone
+after 10s:   GONE
+extraction:  ok
 
 === release and installer ===
 D:\a\nyedarch-platform-tests\nyedarch-platform-tests\ws>release_exit=0
