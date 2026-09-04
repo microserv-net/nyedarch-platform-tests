@@ -1,5 +1,5 @@
 === platform: linux (ubuntu-latest) ===
-rustc 1.98.0 (88d9e12ae 2026-08-18)
+rustc 1.98.1 (48a229cea 2026-09-01)
 
 === test suite ===
 [1m[92m   Doc-tests[0m nyedarch_github
@@ -46,7 +46,7 @@ LEAK=NO
 === probes ===
 --- native location provider (must fail closed, never hang) ---
   MACHINE                         LABELS
-  5d0b26e1f9857385    this one    this machine
+  1119f83d8952f4de    this one    this machine
 
   Included machines: 1
   Known labels: this machine
@@ -59,8 +59,24 @@ location_probe_exit=0
 [buildtool] record is MAC-authenticated; editing it invalidates it.
 --- a record from run 1 must verify in run 3 ---
 warning: No platform keystore was available, so NYEDArch stored its client key in a file readable only by your user account. Anything running as you can read it. Install a Secret Service provider (gnome-keyring, KWallet) for stronger storage.
-[nyedarch] trusted 5d0b26e1f9857385 labels=["probe"]
+[nyedarch] trusted 1119f83d8952f4de labels=["probe"]
 keystore_exit=0
+
+=== destruction under helper kill ===
+--- available one-shot schedulers ---
+/usr/bin/systemd-run
+systemd-run: usable
+at: absent
+launchctl: absent
+schtasks: absent
+--- build a one-shot capsule ---
+   EXECUTION               one-shot
+  ------------------------------------------------
+--- run it, then immediately kill any detached helper ---
+NYEDArch: capsule scheduled for destruction (overwrite and removal handed to a transient systemd job and a detached shell, running after this process exits (requested, not confirmed))
+immediately: gone
+after 10s:   GONE
+extraction:  ok
 
 === release and installer ===
   NYEDArch Framework - build
