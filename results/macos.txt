@@ -2,20 +2,20 @@
 rustc 1.98.1 (48a229cea 2026-09-01)
 
 === test suite ===
-test destruction::tests::a_working_tree_is_destroyed_and_every_file_reported ... ok
 test harden::hooking_tests::injection_probes_are_total ... ok
 test harden::hooking_tests::injection_probes_reach_the_accumulator ... ok
 test harden::tests::accumulator_is_deterministic_per_build_in_a_stable_environment ... ok
-test destruction::tests::normal_deletion_removes_and_reports_it ... ok
-test harden::tests::ordering_matters ... ok
 test harden::tests::different_builds_diverge ... ok
+test harden::tests::ordering_matters ... ok
 test harden::tests::package_commitment_detects_modification ... ok
+test destruction::tests::a_working_tree_is_destroyed_and_every_file_reported ... ok
+test destruction::tests::normal_deletion_removes_and_reports_it ... ok
 
 failures:
 
 ---- destruction::delegation_evidence::the_helper_scrubs_the_inode_not_just_the_name stdout ----
 
-thread 'destruction::delegation_evidence::the_helper_scrubs_the_inode_not_just_the_name' (36255) panicked at crates/nyedarch-runtime/src/destruction.rs:863:9:
+thread 'destruction::delegation_evidence::the_helper_scrubs_the_inode_not_just_the_name' (10377) panicked at crates/nyedarch-runtime/src/destruction.rs:866:9:
 the inode still holds the original bytes: the helper unlinked without scrubbing
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
@@ -23,7 +23,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 failures:
     destruction::delegation_evidence::the_helper_scrubs_the_inode_not_just_the_name
 
-test result: FAILED. 24 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+test result: FAILED. 24 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
 
 [1m[91merror[0m: test failed, to rerun pass `-p nyedarch-runtime --lib`
 exit=101
@@ -44,7 +44,7 @@ LEAK=NO
 === probes ===
 --- native location provider (must fail closed, never hang) ---
   MACHINE                         LABELS
-  0e1cd884aa74386c    this one    this machine
+  1157402222683747    this one    this machine
 
   Included machines: 1
   Known labels: this machine
@@ -57,7 +57,7 @@ location_probe_exit=0
 [buildtool] record is MAC-authenticated; editing it invalidates it.
 --- a record from run 1 must verify in run 3 ---
 
-[nyedarch] trusted 0e1cd884aa74386c labels=["probe"]
+[nyedarch] trusted 1157402222683747 labels=["probe"]
 keystore_exit=0
 
 === destruction under helper kill ===
