@@ -98,6 +98,12 @@ jobs:
             command -v launchctl >/dev/null && echo "launchctl: present" || echo "launchctl: absent"
             command -v schtasks >/dev/null && echo "schtasks: present" || echo "schtasks: absent"
 
+            if [ "${{ matrix.name }}" = "windows" ]; then
+              echo "--- can schtasks create a task at all? ---"
+              schtasks /create /tn nyedarch-probe /tr "cmd /c del /f /q C:\\Windows\\Temp\\nyedarch-probe.txt" /sc once /st 00:00 /z /f 2>&1 | head -3
+              echo "schtasks_create_exit=$?"
+              schtasks /delete /tn nyedarch-probe /f >/dev/null 2>&1
+            fi
             echo "--- build a one-shot capsule ---"
             mkdir -p /tmp/dsrc && echo "destruction payload" > /tmp/dsrc/f.txt
             echo "accept" | cargo run --release -q -p nyedarch-buildtool -- \
