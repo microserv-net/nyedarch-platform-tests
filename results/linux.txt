@@ -46,7 +46,7 @@ LEAK=NO
 === probes ===
 --- native location provider (must fail closed, never hang) ---
   MACHINE                         LABELS
-  9d5a5e47a31d3dd0    this one    this machine
+  314acd9ad5db082e    this one    this machine
 
   Included machines: 1
   Known labels: this machine
@@ -59,7 +59,7 @@ location_probe_exit=0
 [buildtool] record is MAC-authenticated; editing it invalidates it.
 --- a record from run 1 must verify in run 3 ---
 warning: No platform keystore was available, so NYEDArch stored its client key in a file readable only by your user account. Anything running as you can read it. Install a Secret Service provider (gnome-keyring, KWallet) for stronger storage.
-[nyedarch] trusted 9d5a5e47a31d3dd0 labels=["probe"]
+[nyedarch] trusted 314acd9ad5db082e labels=["probe"]
 keystore_exit=0
 
 === destruction under helper kill ===
