@@ -78,5 +78,12 @@ immediately: gone
 after 10s:   GONE
 extraction:  ok
 
+=== warnings ===
+CAPSULE_WARNINGS[plain]=0
+CAPSULE_WARNINGS[time]=0
+CAPSULE_WARNINGS[oneshot]=0
+--- workspace warnings ---
+WORKSPACE_WARNINGS=0
+
 === release and installer ===
 D:\a\nyedarch-platform-tests\nyedarch-platform-tests\ws>release_exit=0
