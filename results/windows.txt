@@ -2,31 +2,31 @@
 rustc 1.98.1 (48a229cea 2026-09-01)
 
 === test suite ===
-[1m[92m   Doc-tests[0m nyedarch_github
 
-running 0 tests
+---- keystore::tests::a_third_call_still_returns_the_same_key stdout ----
 
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+thread 'keystore::tests::a_third_call_still_returns_the_same_key' (6008) panicked at crates\nyedarch-buildtool\src\keystore.rs:404:9:
+assertion `left == right` failed
+  left: [159, 190, 150, 178, 149, 248, 189, 140, 214, 129, 122, 219, 208, 127, 227, 243, 26, 117, 154, 126, 152, 147, 142, 121, 30, 171, 186, 125, 240, 171, 3, 130]
+ right: [144, 240, 142, 184, 40, 21, 252, 237, 57, 144, 243, 51, 162, 106, 145, 196, 199, 144, 29, 150, 93, 141, 1, 18, 39, 71, 156, 54, 205, 189, 56, 43]
 
-[1m[92m   Doc-tests[0m nyedarch_package
+---- keystore::tests::derived_keys_are_separated_by_purpose stdout ----
 
-running 0 tests
+thread 'keystore::tests::derived_keys_are_separated_by_purpose' (1976) panicked at crates\nyedarch-buildtool\src\keystore.rs:414:9:
+assertion `left == right` failed
+  left: [218, 211, 33, 161, 140, 2, 249, 16, 145, 25, 117, 173, 125, 166, 163, 27, 172, 97, 209, 134, 98, 211, 132, 124, 161, 105, 117, 251, 9, 92, 132, 59]
+ right: [122, 115, 161, 117, 9, 138, 174, 211, 171, 212, 114, 94, 254, 203, 145, 165, 241, 60, 174, 156, 41, 3, 100, 129, 17, 133, 119, 221, 246, 69, 71, 9]
 
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-[1m[92m   Doc-tests[0m nyedarch_platform
+failures:
+    keystore::tests::a_key_can_be_obtained_and_is_stable
+    keystore::tests::a_third_call_still_returns_the_same_key
+    keystore::tests::derived_keys_are_separated_by_purpose
 
-running 0 tests
+test result: FAILED. 24 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.25s
 
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-[1m[92m   Doc-tests[0m nyedarch_runtime
-
-running 0 tests
-
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-exit=0
+[1m[91merror[0m: test failed, to rerun pass `-p nyedarch-buildtool --lib`
+exit=101
 
 === end to end ===
   -- CREATOR MODE (diagnostic only) --------------
@@ -73,7 +73,7 @@ schtasks_create_exit=1
    EXECUTION               one-shot
   ------------------------------------------------
 --- run it, then immediately kill any detached helper ---
-NYEDArch: capsule scheduled for destruction (overwrite and removal handed to a detached PowerShell, running after this process exits (requested, not confirmed))
+NYEDArch: capsule scheduled for destruction (overwrite and removal handed to a self-removing scheduled task and a detached PowerShell, running after this process exits (requested, not confirmed))
 immediately: gone
 after 10s:   GONE
 extraction:  ok
