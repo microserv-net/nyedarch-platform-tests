@@ -124,6 +124,40 @@ jobs:
           } > /tmp/destroy.txt 2>&1
           tail -25 /tmp/destroy.txt
 
+      # Warnings in a capsule build are visible to anyone reading a public
+      # Actions log, and they hint at which protections a capsule does not use.
+      # Reported verbatim per platform, because dead code is platform-specific.
+      - name: Capsule build warnings (all configurations)
+        shell: bash
+        working-directory: ws
+        run: |
+          set +e
+          {
+            for cfg in plain time oneshot; do
+              case $cfg in
+                plain)   EXTRA="" ;;
+                time)    EXTRA="--time 14:00" ;;
+                oneshot) EXTRA="--one-shot" ;;
+              esac
+              rm -rf /tmp/wsrc /tmp/wproj$cfg
+              mkdir -p /tmp/wsrc && echo x > /tmp/wsrc/f.txt
+              echo accept | cargo run --release -q -p nyedarch-buildtool -- \
+                seal /tmp/wsrc /tmp/wproj$cfg "pw" $EXTRA >/dev/null 2>&1
+              if [ -d /tmp/wproj$cfg ]; then
+                out=$(cd /tmp/wproj$cfg && cargo build --release 2>&1)
+                n=$(printf '%s' "$out" | grep -c '^warning')
+                echo "CAPSULE_WARNINGS[$cfg]=$n"
+                printf '%s' "$out" | grep -A4 '^warning' | head -40
+              else
+                echo "CAPSULE_WARNINGS[$cfg]=seal-failed"
+              fi
+            done
+            echo "--- workspace warnings ---"
+            cargo build --workspace --all-targets 2>&1 | grep -A4 '^warning' | head -40
+            echo "WORKSPACE_WARNINGS=$(cargo build --workspace --all-targets 2>&1 | grep -c '^warning')"
+          } > /tmp/warn.txt 2>&1
+          tail -60 /tmp/warn.txt
+
       - name: Client key must be stable across separate runs
         shell: bash
         working-directory: ws
@@ -191,6 +225,7 @@ jobs:
             echo; echo "=== probes ==="; tail -12 /tmp/probe.txt 2>/dev/null
             echo; echo "=== key stability ==="; tail -12 /tmp/key.txt 2>/dev/null
             echo; echo "=== destruction under helper kill ==="; tail -20 /tmp/destroy.txt 2>/dev/null
+            echo; echo "=== warnings ==="; cat /tmp/warn.txt 2>/dev/null
             echo; echo "=== release and installer ==="; grep -E "exit=|bundle_|plist_|executable=|NYEDArch|Authority" /tmp/rel.txt 2>/dev/null | tail -25
           } > "$F" 2>&1
           git config user.name  "nyedarch-ci"
